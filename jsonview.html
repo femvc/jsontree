@@ -152,7 +152,7 @@
       color: gray;
     }
 
-    .collapser:after {
+    /* .collapser:after {
       font-size: 13px;
       content: "-";
     }
@@ -160,6 +160,14 @@
     .collapsed>.collapser:after {
       font-size: 13px;
       content: "+";
+    } */
+
+    .collapser i {
+      display: inline-block;
+    }
+
+    .collapsed>.collapser i {
+      transform: rotate(-90deg);
     }
 
     .ellipsis:after {
@@ -187,14 +195,7 @@
       border-radius: 10px;
     }
     .collapser:hover {
-      background-color: rgba(235, 238, 249, 1);
-    }
-
-    li > div[data-status="expanded"] {
-      cursor: pointer;
-    }
-    li > div[data-status="expanded"] ul {
-      cursor: default;
+      /* background-color: rgba(235, 238, 249, 1); */
     }
   </style>
   <script src="formatter.js"></script>
@@ -211,13 +212,13 @@
         const id = hashID()
         $parent.id = id
         $parent.dataset.status = 'expanded'
-        $parent.onclick = (e) => {
+        $parent.querySelector('.collapser').onclick = (e) => {
           onToggle(e, id, $collapser)
         }
       }
     }
     window.onload = function () {
-
+      doit();
     }
   </script>
 </head>
@@ -227,10 +228,10 @@
   json
   <div style="position:absolute;margin-top:12px;">
     <textarea id="json" cols="45" rows="8">{
-  "success":true,
-  "message":"Page load successfully.",
-  "a":[1,2,3]
-}
+      "success":true,
+      "message":"Page load successfully.",
+      "a":[1,2,{k: [1, 'e']}]
+    }    
 </textarea>
   </div>
   <div style="margin-left:450px;">
