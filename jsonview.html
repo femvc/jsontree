@@ -222,6 +222,14 @@
       display: inline-block;
       margin-left: 23px;
     }
+    .operate-item span {
+      color: #1890ff;
+      display: inline-block;
+      border: 1px solid #d1e9ff;
+      padding: 1px 8px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
     .type-select-item {
       display: inline-block;
     }
@@ -252,6 +260,20 @@
     #json .collapsible li {
       padding-top: 7px;
     }
+    .operate-item-setting {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #ffffff;
+      padding: 10px;
+      border: 1px solid #d9d9d9;
+    }
+    .operate-item-setting label {
+      margin-right: 5px;
+    }
+    .operate-item-setting input {
+      vertical-align: top;
+    }
   </style>
   <script src="formatter.js"></script>
   <script>
@@ -280,6 +302,14 @@
 
 <body>
   <h1>JSON 2 HTML Tree</h1>
+  <div class="operate-item-setting">
+    <label><input type="checkbox" id="showAddChild" checked>新增子项</label>
+    <label><input type="checkbox" id="showCopyKeyValue" checked>复制(键/值)</label>
+    <label><input type="checkbox" id="showCopyBody" checked>复制(数组/对象)</label>
+    <label><input type="checkbox" id="showClearContent" checked>清空(数组/对象)</label>
+    <label><input type="checkbox" id="showAddBefore" checked>新增(在前)</label>
+    <label><input type="checkbox" id="showDelete" checked>删除</label>
+  </div>
   json
   <div style="margin-top:12px;">
     <textarea id="json" cols="45" rows="8">{

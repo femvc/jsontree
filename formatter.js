@@ -38,11 +38,7 @@ function decorateWithSpan(value, className, index, length) {
     </div><div class="value-input-item">
       <input type="text" value="${htmlEncode(value)}">
     </div>${addComma(index, length)}<div class="operate-item">
-      <span role="img" tabindex="-1">删除</span>
-      <span role="img" tabindex="-1">新增同级元素</span>
-      <span role="img" tabindex="-1">复制</span>
-      <span role="img" tabindex="-1">拖动</span>
-      <span role="img" tabindex="-1">更多</span>
+      
     </div>`
 }
 
@@ -107,11 +103,8 @@ function arrayToHTML(json) {
         <option value="null">null</option>
       </select>[ <span class="ellipsis"></span>
       <div class="operate-item">
-        <span role="img" tabindex="-1">删除</span>
-        <span role="img" tabindex="-1">新增同级元素</span>
-        <span role="img" tabindex="-1">复制</span>
-        <span role="img" tabindex="-1">拖动</span>
-        <span role="img" tabindex="-1">更多</span>
+        <span role="img" class="copy-body" tabindex="-1">复制数组</span>
+        <span role="img" class="paste-body" tabindex="-1">粘贴数组</span>
       </div>
       <ul class="array collapsible">`,
     hasContents = false,
@@ -130,6 +123,16 @@ function arrayToHTML(json) {
   return output
 }
 
+/*
+      <div class="operate-item">
+        <span role="img" class="add-child" tabindex="-1">新增子项</span>
+        <span role="img" class="copy-keyvalue" tabindex="-1">复制(键/值)</span>
+        <span role="img" class="copy-body" tabindex="-1">复制(数组/对象)</span>
+        <span role="img" class="clear-content" tabindex="-1">清空(数组/对象)</span>
+        <span role="img" class="add-before" tabindex="-1">新增(在前)</span>
+        <span role="img" class="delete" tabindex="-1">删除</span>
+      </div>
+*/
 function objectToHTML(json) {
   const keys = Object.keys(json)
   const length = keys.length
@@ -149,11 +152,6 @@ function objectToHTML(json) {
       </select>
       <span class="ellipsis"></span>
       <div class="operate-item">
-        <span role="img" tabindex="-1">删除</span>
-        <span role="img" tabindex="-1">新增同级元素</span>
-        <span role="img" tabindex="-1">复制</span>
-        <span role="img" tabindex="-1">拖动</span>
-        <span role="img" tabindex="-1">更多</span>
       </div>
       <ul class="obj collapsible">`,
     hasContents = false,
