@@ -49,11 +49,43 @@
 
     .collapser {
       position: absolute;
-      top: 1px;
-      left: -1.5em;
+      top: 11px;
+      left: -27px;
       cursor: default;
       user-select: none;
       -webkit-user-select: none;
+    }
+    .collapser i {
+      display: inline-block;
+      font-size: 10px;
+      padding-left: 7px;
+      padding-top: 7px;
+      cursor: pointer;
+      border-radius: 6px;
+      height: 24px;
+      width: 24px;
+      box-sizing: border-box;
+      /* background-color: #f2f2f2; */
+    }
+    .collapser i:hover {
+      background-color: rgba(235, 238, 249, 1);
+    }
+    .collapsed > .collapser i {
+      transform: rotate(-90deg);
+    }
+    .vline {
+      position: absolute;
+      top: 16px;
+      left: -51px;
+      width: 5px;
+      height: 16px;
+      /* border-width: 0px 2px 0px 2px;
+      border-color: #999999;
+      border-style: dotted; */
+    }
+    .vline svg {
+      /* visibility: hidden; */
+      color: #999999;
     }
 
     .status {
@@ -162,14 +194,6 @@
       content: "+";
     } */
 
-    .collapser i {
-      display: inline-block;
-    }
-
-    .collapsed>.collapser i {
-      transform: rotate(-90deg);
-    }
-
     .ellipsis:after {
       content: attr(data-value);
     }
@@ -179,8 +203,8 @@
     }
 
     .hoverable {
-      padding: 1px 2px;
-      border-radius: 2px;
+      /* padding: 1px 2px; */
+      /* border-radius: 2px; */
       width: 100%;
     }
 
@@ -188,14 +212,45 @@
       background-color: rgba(235, 238, 249, 1);
     }
 
-    .collapser {
-      padding-right: 6px;
-      padding-left: 6px;
-      cursor: pointer;
-      border-radius: 10px;
+    
+  </style>
+  <style>
+    .operate-item {
+      /* display: flex;
+      justify-content: space-around; */
+      /* float: right; */
+      display: inline-block;
+      margin-left: 23px;
     }
-    .collapser:hover {
-      /* background-color: rgba(235, 238, 249, 1); */
+    .type-select-item {
+      display: inline-block;
+    }
+    .value-input-item {
+      display: inline-block;
+      margin-right: 4px;
+    }
+    #json {font-size: 14px;}
+    #json select,#json input {
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      background: #ffffff;
+      padding: 0 11px;
+      height: 30px;
+      line-height: 30px;
+      font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+    }
+    #json input:focus,#json select:focus {
+      border-color: #1677ff;
+      box-shadow: 0 0 0 2px rgba(5,145,255,0.1);
+      outline: 0;
+      background-color: #ffffff;
+    }
+    #json select {
+      margin-right: 3px;
+    }
+    #json .collapsible li {
+      padding-top: 7px;
     }
   </style>
   <script src="formatter.js"></script>
@@ -226,7 +281,7 @@
 <body>
   <h1>JSON 2 HTML Tree</h1>
   json
-  <div style="position:absolute;margin-top:12px;">
+  <div style="margin-top:12px;">
     <textarea id="json" cols="45" rows="8">{
       "success":true,
       "message":"Page load successfully.",
@@ -234,10 +289,10 @@
     }    
 </textarea>
   </div>
-  <div style="margin-left:450px;">
+  <div>
     <button type="button" id="check" onclick="doit()">转换</button>
   </div>
-  <div id="resultText" class="left_tree" style="margin-left:450px;">
+  <div id="resultText" class="left_tree">
     <div id="json">
       
     </div>

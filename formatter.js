@@ -20,65 +20,71 @@ function addComma(index, length) {
   return index < length - 1 ? ',' : ''
 }
 
-function decorateWithSpan(value, className) {
-  return `<span class="${className}">${htmlEncode(value)}</span>`
+function decorateWithSpan(value, className, index, length) {
+  // return `<span class="${className}">${htmlEncode(value)}</span>`
+  const types = ['number','string','boolean','undefined','symbol','bigint','null']
+  return `<div class="type-select-item">
+      <select name="type" class="type-select">
+        <option value="string" ${className === 'string' ? 'selected' : ''}>string</option>
+        <option value="object">object</option>
+        <option value="array">array</option>
+        <option value="number" ${className === 'number' ? 'selected' : ''}>number</option>
+        <option value="boolean" ${className === 'boolean' ? 'selected' : ''}>boolean</option>
+        <option value="undefined" ${className === 'undefined' ? 'selected' : ''}>undefined</option>
+        <option value="symbol" ${className === 'symbol' ? 'selected' : ''}>symbol</option>
+        <option value="bigint" ${className === 'bigint' ? 'selected' : ''}>bigint</option>
+        <option value="null" ${className === 'null' ? 'selected' : ''}>null</option>
+      </select>
+    </div><div class="value-input-item">
+      <input type="text" value="${htmlEncode(value)}">
+    </div>${addComma(index, length)}<div class="operate-item">
+      <span role="img" tabindex="-1">删除</span>
+      <span role="img" tabindex="-1">新增同级元素</span>
+      <span role="img" tabindex="-1">复制</span>
+      <span role="img" tabindex="-1">拖动</span>
+      <span role="img" tabindex="-1">更多</span>
+    </div>`
 }
 
-function valueToHTML(value) {
+function valueToHTML(value, index, length) {
   const type = value === null ? 'null' : typeof value
   let output = ''
 
   switch (type) {
     case 'object':
       output += value && value.constructor === Array ? arrayToHTML(value) : objectToHTML(value)
-
       break
 
     case 'number':
-      output += decorateWithSpan(value, 'type-number')
-
+      output += decorateWithSpan(value, 'number', index, length)
       break
 
     case 'string':
-      if (/^(http|https):\/\/[^\s]+$/.test(value)) {
-        output += `${decorateWithSpan(
-          '"',
-          'type-string',
-        )}<a target="_blank" href="${value}">${htmlEncode(value)}</a>${decorateWithSpan(
-          '"',
-          'type-string',
-        )}`
-      } else {
-        output += decorateWithSpan(`"${value}"`, 'type-string')
-      }
+      output += decorateWithSpan(`"${value}"`, 'string', index, length)
       break
 
     case 'boolean':
-      output += decorateWithSpan(value, 'type-boolean')
+      output += decorateWithSpan(value, 'boolean', index, length)
       break
 
     case 'undefined':
-      output += decorateWithSpan('undefined', 'type-undefined')
+      output += decorateWithSpan('undefined', 'undefined', index, length)
       break
 
     case 'symbol':
-      output += decorateWithSpan(value.toString(), 'type-symbol')
-      break
-
-    case 'function':
-      output += decorateWithSpan('function', 'type-function')
+      output += decorateWithSpan(value.toString(), 'symbol', index, length)
       break
 
     case 'bigint':
-      output += decorateWithSpan(value.toString(), 'type-bigint')
+      output += decorateWithSpan(value.toString(), 'bigint', index, length)
       break
 
     case 'null':
-      output += decorateWithSpan('null', 'type-null')
+      output += decorateWithSpan('null', 'null', index, length)
       break
 
     default:
-      output += decorateWithSpan(type, 'type-other')
+      // output += decorateWithSpan(type, 'other')
       break
   }
 
@@ -88,13 +94,33 @@ function valueToHTML(value) {
 function arrayToHTML(json) {
   const length = json.length
   let output =
-      '<div class="collapser"><i><svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path></svg></i></div>[<span class="ellipsis"></span><ul class="array collapsible">',
+      `<div class="collapser"><i><svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path></svg></i></div>
+      <select name="type" class="type-select">
+        <option value="string">string</option>
+        <option value="object">object</option>
+        <option value="array" selected>array</option>
+        <option value="number">number</option>
+        <option value="boolean">boolean</option>
+        <option value="undefined">undefined</option>
+        <option value="symbol">symbol</option>
+        <option value="bigint">bigint</option>
+        <option value="null">null</option>
+      </select>[ <span class="ellipsis"></span>
+      <div class="operate-item">
+        <span role="img" tabindex="-1">删除</span>
+        <span role="img" tabindex="-1">新增同级元素</span>
+        <span role="img" tabindex="-1">复制</span>
+        <span role="img" tabindex="-1">拖动</span>
+        <span role="img" tabindex="-1">更多</span>
+      </div>
+      <ul class="array collapsible">`,
     hasContents = false,
     index = 0
 
+  let vline = '<div class="vline"><svg viewBox="64 64 896 896" focusable="false" data-icon="holder" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M300 276.5a56 56 0 1056-97 56 56 0 00-56 97zm0 284a56 56 0 1056-97 56 56 0 00-56 97zM640 228a56 56 0 10112 0 56 56 0 00-112 0zm0 284a56 56 0 10112 0 56 56 0 00-112 0zM300 844.5a56 56 0 1056-97 56 56 0 00-56 97zM640 796a56 56 0 10112 0 56 56 0 00-112 0z"></path></svg></div>' 
   for (const item of json) {
     hasContents = true
-    output += `<li><div class="hoverable">${valueToHTML(item)}${addComma(index, length)}</div></li>`
+    output += `<li><div class="hoverable">${vline}${valueToHTML(item, index, length)}</div></li>`
     index++
   }
   output += '</ul>]'
@@ -109,16 +135,37 @@ function objectToHTML(json) {
   const length = keys.length
 
   let output =
-      '<div class="collapser"><i><svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path></svg></i></div>{<span class="ellipsis"></span><ul class="obj collapsible">',
+      `<div class="collapser"><i><svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path></svg></i></div>
+      {<select name="type" class="type-select">
+        <option value="string">string</option>
+        <option value="object" selected>object</option>
+        <option value="array">array</option>
+        <option value="number">number</option>
+        <option value="boolean">boolean</option>
+        <option value="undefined">undefined</option>
+        <option value="symbol">symbol</option>
+        <option value="bigint">bigint</option>
+        <option value="null">null</option>
+      </select>
+      <span class="ellipsis"></span>
+      <div class="operate-item">
+        <span role="img" tabindex="-1">删除</span>
+        <span role="img" tabindex="-1">新增同级元素</span>
+        <span role="img" tabindex="-1">复制</span>
+        <span role="img" tabindex="-1">拖动</span>
+        <span role="img" tabindex="-1">更多</span>
+      </div>
+      <ul class="obj collapsible">`,
     hasContents = false,
     index = 0
 
+  let vline = '<div class="vline"><svg viewBox="64 64 896 896" focusable="false" data-icon="holder" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M300 276.5a56 56 0 1056-97 56 56 0 00-56 97zm0 284a56 56 0 1056-97 56 56 0 00-56 97zM640 228a56 56 0 10112 0 56 56 0 00-112 0zm0 284a56 56 0 10112 0 56 56 0 00-112 0zM300 844.5a56 56 0 1056-97 56 56 0 00-56 97zM640 796a56 56 0 10112 0 56 56 0 00-112 0z"></path></svg></div>' 
   for (const key of keys) {
     hasContents = true
-    output += '<li><div class="hoverable">'
-    output += `<span class="property">${htmlEncode(key)}</span>: ${valueToHTML(
-      json[key],
-    )}${addComma(index, length)}`
+    output += `<li><div class="hoverable">${vline}`
+    output += `<span class="property"><input type="text" value="${htmlEncode(
+      key,
+    )}"></span>: ${valueToHTML(json[key], index, length)}`
     output += '</div></li>'
     index++
   }
@@ -193,7 +240,7 @@ function reduce($collapsed) {
   if ($parent.dataset.status !== 'expanded') return
 
   const $ellipsis = $parent.querySelector('.ellipsis')
-  if ($ellipsis) $ellipsis.dataset.value = `${$collapsed.childElementCount}`
+  if ($ellipsis) $ellipsis.dataset.value = `..${$collapsed.childElementCount}..`
   $parent.classList.add('collapsed')
   $parent.dataset.status = 'reduced'
 }
