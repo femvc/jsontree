@@ -47,7 +47,7 @@ function decorateWithSpan(value, index, length, prefix) {
       str = `<input type="number" idx="${prefix}:value" value="${value}">`
       break
     case 'string':
-      str = `<input type="text" idx="${prefix}:value" value="${value}">`
+      str = `<input type="text" idx="${prefix}:value" value="${htmlEncode(value)}">`
       break
     default:
       str = ''
@@ -110,7 +110,9 @@ function arrayToHTML(data, prefix) {
         <option value="boolean">boolean</option>
         <option value="undefined">undefined</option>
         <option value="null">null</option>
-      </select>[<div class="operate-item" idx="${prefix}:value" style="${prefix ? '' : 'display:none'}">
+      </select>[<div class="operate-item" idx="${prefix}:value" style="${
+      prefix ? '' : 'display:none'
+    }">
         <span class="cmd copy-body" tabindex="-1">复制数组</span>
         <span class="cmd paste-body" tabindex="-1">粘贴数组</span>
       </div>
@@ -148,6 +150,27 @@ function arrayToHTML(data, prefix) {
 */
 function objectToHTML(data, prefix) {
   const arr = Object.entries(data)
+  const order = ['fieldType', 'searchType', 'key', 'value']
+  if (window.globalEntriesSort) {
+    arr.sort((a, b) => {
+      const indexA = order.indexOf(a[0])
+      const indexB = order.indexOf(b[0])
+
+      if (indexA !== -1 && indexB !== -1) {
+        // 如果 a 和 b 都在 order 里，按 order 顺序排序
+        return indexA - indexB
+      } else if (indexA !== -1) {
+        // 只有 a 在 order 里，a 排前面
+        return -1
+      } else if (indexB !== -1) {
+        // 只有 b 在 order 里，b 排前面
+        return 1
+      } else {
+        // 都不在 order 里，按默认顺序排序（即原数组顺序）
+        return 0
+      }
+    })
+  }
   const keys = Object.keys(data)
   const length = keys.length
 
@@ -188,7 +211,7 @@ function objectToHTML(data, prefix) {
 
 function jsonToHTML(data, fnName) {
   let output = fnName ? `<div class="callback-function">${fnName}(</div>` : ''
-  output += `<div id="json6">${valueToHTML(data, null, null, '')}</div>`
+  output += `<div class="jsontree">${valueToHTML(data, null, null, '')}</div>`
 
   return `${output}${fnName ? '<div class="callback-function">)</div>' : ''}`
 }

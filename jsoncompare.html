@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <title>jsonview</title>
+  <style>
+    body {
+      margin-bottom: 23px;
+      white-space: normal !important;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0 0 0 26px;
+    }
+
+    li {
+      position: relative;
+    }
+
+    .hoverable {
+      transition: background-color .2s ease-out 0s;
+      -webkit-transition: background-color .2s ease-out 0s;
+      display: inline-block;
+    }
+
+    .hovered {
+      transition-delay: .2s;
+      -webkit-transition-delay: .2s;
+    }
+
+    .selected {
+      outline: dotted 1px;
+    }
+
+    .collapsed>.collapsible {
+      display: none;
+    }
+
+    .ellipsis {
+      display: none;
+    }
+
+    .collapsed>.ellipsis {
+      display: inherit;
+    }
+
+    .collapser {
+      position: absolute;
+      top: 11px;
+      left: -27px;
+      cursor: default;
+      user-select: none;
+      line-height: 10px;
+      -webkit-user-select: none;
+    }
+
+    .collapser i {
+      display: inline-block;
+      font-size: 10px;
+      padding-left: 7px;
+      padding-top: 7px;
+      cursor: pointer;
+      border-radius: 6px;
+      height: 24px;
+      width: 24px;
+      box-sizing: border-box;
+      /* background-color: #f2f2f2; */
+    }
+
+    .collapser i:hover {
+      background-color: rgba(235, 238, 249, 1);
+    }
+
+    .collapsed>.collapser i {
+      transform: rotate(-90deg);
+    }
+
+    .vline {
+      position: absolute;
+      top: 10px;
+      left: -50px;
+      width: 5px;
+      height: 16px;
+      /* border-width: 0px 2px 0px 2px;
+      border-color: #999999;
+      border-style: dotted; */
+    }
+
+    .vline svg {
+      /* visibility: hidden; */
+      color: #999999;
+    }
+  </style>
+  <style>
+    body {
+      white-space: pre;
+      font-family: monospace;
+    }
+
+    .property {}
+
+    .property input {
+      width: 100px;
+    }
+
+    .callback-function {
+      color: gray;
+    }
+
+    /* .collapser:after {
+      font-size: 13px;
+      content: "-";
+    }
+
+    .collapsed>.collapser:after {
+      font-size: 13px;
+      content: "+";
+    } */
+
+    .ellipsis:after {
+      content: attr(data-value);
+    }
+
+    .collapsible {
+      margin-left: 2em;
+    }
+
+    .hoverable {
+      /* padding: 1px 2px; */
+      /* border-radius: 2px; */
+      width: 100%;
+    }
+
+    .hovered {
+      background-color: rgba(235, 238, 249, 1);
+    }
+  </style>
+  <style>
+    .operate-item {
+      /* display: flex;
+      justify-content: space-around; */
+      /* float: right; */
+      display: inline-block;
+      margin-left: 23px;
+      position: absolute;
+      margin-left: 95px;
+      margin-top: 2px;
+    }
+
+    .operate-item span {
+      color: #1890ff;
+      display: inline-block;
+      border: 1px solid #d1e9ff;
+      padding: 1px 8px;
+      border-radius: 7px;
+      cursor: pointer;
+      line-height: 24px;
+    }
+
+    .type-select-item {
+      display: inline-block;
+    }
+
+    .value-input-item {
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .jsontree {
+      font-size: 14px;
+    }
+
+    .jsontree select,
+    .jsontree input {
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      background: #ffffff;
+      padding: 0 11px;
+      height: 32px;
+      line-height: 32px;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    }
+
+    .jsontree input:focus,
+    .jsontree select:focus {
+      border-color: #1677ff;
+      box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+      outline: 0;
+      background-color: #ffffff;
+    }
+
+    .jsontree input[disabled] {
+      background: #f5f5f5;
+    }
+
+    .jsontree select {
+      margin-right: 3px;
+    }
+
+    .jsontree .collapsible li {
+      padding-top: 6px;
+    }
+
+    .jsontree .value-input-item input {
+      width: 156px;
+    }
+
+    .jsontree .value-input-item select {
+      width: 156px;
+      padding-left: 7px;
+    }
+
+    .jsontree li {
+      min-height: 33px;
+      line-height: 32px;
+    }
+
+    .operate-item-setting {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #ffffff;
+      padding: 10px;
+      border: 1px solid #d9d9d9;
+    }
+
+    .operate-item-setting label {
+      margin-right: 5px;
+    }
+
+    .operate-item-setting input {
+      vertical-align: top;
+    }
+  </style>
+  <style>
+    .compare-table {}
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      border: 1px solid #d9d9d9;
+      vertical-align: top;
+    }
+
+    .compare-table .type-select {
+      display: none;
+    }
+
+    .compare-table .value-input-item input {
+      width: 316px;
+    }
+  </style>
+  <script src="formatter.js"></script>
+  <script src="jsonbyxpath.js"></script>
+  <script>
+    function bindEventHandle(_container, _datasource) {
+      const container = _container
+      const datasource = _datasource
+
+      let list = container.querySelectorAll('.jsontree .collapsible .collapsible')
+      for (const item of list) {
+        const pp = item.parentElement
+        const id = hashID()
+        pp.id = id
+        pp.dataset.status = 'expanded'
+        pp.querySelector('.collapser').onclick = (e) => {
+          onToggle(e, id, item)
+        }
+      }
+
+      list = [...container.querySelectorAll('.jsontree select'), ...container.querySelectorAll('.jsontree input')]
+      list.forEach(item => {
+        const elem = item
+        elem.onchange = (e) => {
+          let idx = elem.getAttribute('idx')
+          let val = elem.value
+
+          doSaveData([JSON.stringify(window.dataProfiles), JSON.stringify(window.dataResources)])
+          setValueByXPath(datasource, idx, val)
+          doSaveData([JSON.stringify(window.dataProfiles), JSON.stringify(window.dataResources)])
+          container.innerHTML = jsonToHTML(datasource);
+          bindEventHandle(container, datasource)
+        }
+      })
+
+      list = [...container.querySelectorAll('.jsontree .cmd')]
+      list.forEach(item => {
+        const elem = item
+        elem.onclick = (e) => {
+          if (elem.classList.contains('copy-body')) {
+            copyArrayContent(elem.parentNode.getAttribute('idx'), datasource)
+          } else if (elem.classList.contains('paste-body')) {
+            if (!window.copyCache) {
+              alert('请先复制')
+              return ''
+            }
+
+            doSaveData([JSON.stringify(window.dataProfiles), JSON.stringify(window.dataResources)])
+            pasteArrayContent(elem.parentNode.getAttribute('idx'), datasource, container)
+            doSaveData([JSON.stringify(window.dataProfiles), JSON.stringify(window.dataResources)])
+          }
+        }
+      })
+
+    }
+    window.copyCache = ''
+    function copyArrayContent(idx, datasource) {
+      let val = getValueByXPath(datasource, idx)
+      let copyCache = JSON.parse(JSON.stringify(val))
+      window.copyCache = JSON.stringify(copyCache)
+      alert('复制成功')
+    }
+    function pasteArrayContent(idx, datasource, container) {
+      let val = JSON.parse(window.copyCache)
+      setValueByXPath(datasource, idx, val)
+      container.innerHTML = jsonToHTML(datasource);
+      bindEventHandle(container, datasource)
+      alert('粘贴成功')
+    }
+
+    window.dataProfiles = []
+    window.dataResources = []
+    function loadProfilesAndResources(data) {
+      window.dataProfiles = JSON.parse(data[0])
+      document.getElementById('cellOne').innerHTML = jsonToHTML(window.dataProfiles);
+
+      bindEventHandle(document.getElementById('cellOne'), window.dataProfiles);
+
+      window.dataResources = JSON.parse(data[1])
+      document.getElementById('cellTwo').innerHTML = jsonToHTML(window.dataResources);
+
+      bindEventHandle(document.getElementById('cellTwo'), window.dataResources);
+    }
+
+    window.onload = function () {
+      window.globalEntriesSort = true // ['fieldType', 'searchType', 'key', 'value']
+
+      document.querySelector('#btnUndo').addEventListener('click', handleEventUndo);
+      document.querySelector('#btnRedo').addEventListener('click', handleEventRedo);
+      document.querySelector('#btnReset').addEventListener('click', handleEventReset);
+      document.querySelector('#btnSave').addEventListener('click', handleEventSaveLocal);
+
+      refreshBtnState();
+      if (window.actionHistoryStack.length > 0) {
+        handleNext(window.actionHistoryStack[window.actionHistoryIndex]);
+      }
+
+      if (sessionStorage.getItem('actionHistoryIndex') && window.actionHistoryIndex < window.actionHistoryStack.length) {
+        loadProfilesAndResources(window.actionHistoryStack[window.actionHistoryIndex])
+      } else {
+        const data = [
+          localStorage.getItem('profiles') || '[]',
+          localStorage.getItem('resources') || '[]'
+        ]
+        loadProfilesAndResources(data)
+      }
+    }
+
+    /**
+     * Undo / Redo
+     */
+    window.actionHistoryStack = JSON.parse(sessionStorage.getItem('actionHistoryStack')) || [];
+    window.actionHistoryIndex = parseInt(sessionStorage.getItem('actionHistoryIndex')) || 0;
+
+    function handleEventRedo() {
+      if (window.actionHistoryIndex < window.actionHistoryStack.length - 1) {
+        window.actionHistoryIndex++;
+        updateSessionStorage();
+        refreshBtnState();
+        handleNext(window.actionHistoryStack[window.actionHistoryIndex]);
+      }
+    }
+
+    function handleEventUndo() {
+      if (window.actionHistoryIndex > 0) {
+        // if (window.actionHistoryIndex === window.actionHistoryStack.length) {
+        //   saveCurrentState();
+        // }
+        window.actionHistoryIndex--;
+        updateSessionStorage();
+        refreshBtnState();
+        handleNext(window.actionHistoryStack[window.actionHistoryIndex]);
+      }
+    }
+
+    function handleEventReset() {
+      window.actionHistoryStack = [];
+      window.actionHistoryIndex = 0;
+      updateSessionStorage();
+      refreshBtnState();
+      const data = [
+        localStorage.getItem('profiles') || '[]',
+        localStorage.getItem('resources') || '[]'
+      ]
+      handleNext(data);
+    }
+
+    function handleEventSaveLocal() {
+      const data = [
+        JSON.stringify(window.dataProfiles),
+        JSON.stringify(window.dataResources)
+      ]
+      localStorage.setItem('profiles', data[0]);
+      localStorage.setItem('resources', data[1]);
+      
+      handleEventReset();
+    }
+
+    function refreshBtnState() {
+      document.querySelector('#btnUndo').disabled = window.actionHistoryIndex < 1;
+      document.querySelector('#btnRedo').disabled = window.actionHistoryIndex >= window.actionHistoryStack.length - 1;
+    }
+
+    function saveCurrentState() {
+      window.actionHistoryStack.push([JSON.stringify(window.dataProfiles), JSON.stringify(window.dataResources)]);
+    }
+    function doSaveData(data) {
+      if (window.actionHistoryStack.length && JSON.stringify(window.actionHistoryStack[window.actionHistoryStack.length - 1]) === JSON.stringify(data)) {
+        return;
+      }
+      window.actionHistoryStack.push(data);
+      window.actionHistoryIndex = window.actionHistoryStack.length - 1;
+      updateSessionStorage();
+      refreshBtnState();
+    }
+
+    function updateSessionStorage() {
+      sessionStorage.setItem('actionHistoryStack', JSON.stringify(window.actionHistoryStack));
+      sessionStorage.setItem('actionHistoryIndex', window.actionHistoryIndex.toString());
+    }
+
+    function handleNext(data) {
+      console.log('handleNext:', data);
+      loadProfilesAndResources(data);
+    }
+  </script>
+</head>
+
+<body>
+  <div style="text-align: right; padding-bottom: 5px;">
+    <button id="btnReset">Reset</button>
+    <button id="btnUndo" style="margin-left: 30px;">Undo</button>
+    <button id="btnRedo" style="margin-right: 30px;">Redo</button>
+    <button id="btnSave">Save</button>
+  </div>
+  <table class="compare-table">
+    <tr>
+      <th width="50%">Lite</th>
+      <th>Advanced</th>
+    </tr>
+    <tr>
+      <td>
+        <div id="cellOne"></div>
+      </td>
+      <td>
+        <div id="cellTwo"></div>
+      </td>
+    </tr>
+  </table>
+
+
+
+</body>
+
+</html>
